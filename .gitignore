@@ -1,0 +1,28 @@
+# Variáveis de ambiente (nunca versione com dados reais)
+.env
+infra/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Downloads de mandados (temporários)
+/tmp/mandados/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
