@@ -1,61 +1,51 @@
-# Requisitos do Sistema - CEMAN Automação
+# 📋 Especificação de Requisitos: Projeto CEMAN-Automação
 
-## 1. Visão Geral
-
-Este documento descreve os requisitos funcionais e não funcionais do sistema de automação para Oficiais de Justiça do TJDFT, tendo como base o portal CEMAN (Central de Mandados).
+Este documento detalha as necessidades funcionais e de qualidade para o sistema de automação destinado aos Oficiais de Justiça do TJDFT.
 
 ---
 
-## 2. Requisitos Funcionais
+## 1. Requisitos Funcionais (RF)
 
-### RF01 - Autenticação no CEMAN
-- O sistema deve autenticar-se automaticamente no portal CEMAN utilizando credenciais armazenadas de forma segura.
-- O sistema deve tratar falhas de autenticação e notificar o responsável.
+### 🔑 Autenticação e Acesso
+* **RF01 - Login Unificado:** O sistema deve possuir uma interface de login própria para o Oficial de Justiça no Oracle APEX.
+* **RF02 - Integração MFA:** A aplicação deve solicitar o código do *Microsoft Authenticator* e replicá-lo no portal CEMAN para concluir o acesso automatizado.
+* **RF03 - Persistência de Sessão:** O sistema deve gerenciar a sessão do navegador para evitar logouts durante o processamento de lotes.
 
-### RF02 - Extração de Mandados (Scraping)
-- O sistema deve acessar a lista de mandados pendentes do Oficial de Justiça.
-- O sistema deve baixar os PDFs dos mandados automaticamente.
-- O sistema deve identificar o tipo de mandado (citação, intimação, penhora, etc.).
+### 🛰️ Captura e Processamento (Scraping & IA)
+* **RF04 - Sincronização de Mesa:** Acessar a "Mesa de Trabalho" do CEMAN e listar todos os mandados pendentes.
+* **RF05 - Extração de Metadados Web:** Capturar Nº do Processo, Nome da Parte, Endereço e Data de Distribuição diretamente da interface.
+* **RF06 - Extração de Metadados PDF (IA):** Utilizar IA para analisar o PDF e identificar:
+    * Número de Telefone (WhatsApp).
+    * Natureza do Mandado (Citação, Intimação, Penhora, etc.).
+    * Grau de Urgência (Baixo, Médio, Alto).
+    * Resumo Executivo do objetivo do mandado.
+* **RF07 - Gestão Multidestinatários:** Caso um mandado possua múltiplos alvos, o sistema deve criar trilhas de contato independentes para cada um.
 
-### RF03 - Processamento com Inteligência Artificial
-- O sistema deve enviar os PDFs para o modelo Gemini IA para extração estruturada das informações.
-- As informações extraídas devem incluir: nome das partes, endereço, número do processo, vara, prazo e tipo de ato.
+### 💬 Agente de Comunicação (n8n + WhatsApp)
+* **RF08 - Orquestração de Conversa:** O agente deve realizar a saudação oficial, verificar a identidade (ex: confirmação de CPF) e enviar o mandado em PDF.
+* **RF09 - Fuso Horário Comercial:** Disparar novas mensagens apenas entre 08:00 e 18:00.
+* **RF10 - Resposta Automática de Suporte:** Fora do horário comercial, responder mensagens recebidas informando a indisponibilidade momentânea do Oficial.
+* **RF11 - Transbordo Manual:** Fornecer link direto para o chat do WhatsApp caso a IA não consiga concluir o protocolo ou o usuário peça suporte humano.
 
-### RF04 - Gestão via Oracle APEX
-- O sistema deve persistir os dados estruturados no banco de dados Oracle APEX.
-- O Oficial de Justiça deve conseguir visualizar, filtrar e atualizar o status dos mandados via APEX.
-- O sistema deve registrar o histórico de ações realizadas em cada mandado.
-
-### RF05 - Automação de Comunicações via WhatsApp
-- O sistema deve enviar notificações via WhatsApp (Evolution API + n8n) para partes e advogados, conforme configurado.
-- O sistema deve enviar confirmações de cumprimento de mandado ao Oficial de Justiça responsável.
-
-### RF06 - Geração de Certidões
-- O sistema deve gerar automaticamente minutas de certidões com base nos dados do mandado e no resultado do cumprimento.
-
----
-
-## 3. Requisitos Não Funcionais
-
-### RNF01 - Segurança
-- Credenciais de acesso ao CEMAN devem ser armazenadas em variáveis de ambiente ou cofre seguro (ex.: `.env`).
-- A comunicação entre os componentes deve ser feita via HTTPS.
-
-### RNF02 - Disponibilidade
-- O sistema deve estar disponível durante o horário de expediente do TJDFT (08h às 18h, dias úteis).
-- Jobs de scraping devem ser agendados de forma a não sobrecarregar o portal CEMAN.
-
-### RNF03 - Manutenibilidade
-- O código deve seguir boas práticas de Python (PEP 8) e ser documentado.
-- Os workflows do n8n devem ser exportados em JSON e versionados no repositório.
-
-### RNF04 - Desempenho
-- A extração e processamento de um lote de mandados não deve ultrapassar 10 minutos.
+### 📄 Provas e Finalização
+* **RF12 - Registro de Fé Pública (Prints):** Realizar capturas de tela automáticas da confirmação de leitura e mensagens-chave.
+* **RF13 - Log de Eventos:** Salvar histórico completo da interação (texto e timestamps) no banco de dados.
+* **RF14 - Geração de Certidão:** Preencher rascunho de certidão com dados da diligência para revisão do Oficial.
+* **RF15 - Lista Negra (Blacklist):** Permitir o bloqueio de números específicos para evitar automações futuras.
 
 ---
 
-## 4. Restrições
+## 2. Requisitos Não Funcionais (RNF)
 
-- O sistema deve operar exclusivamente dentro da rede do TJDFT ou via VPN autorizada.
-- O uso da IA Gemini deve respeitar as políticas de privacidade e sigilo processual.
-- O envio de mensagens via WhatsApp deve cumprir as normas internas do TJDFT.
+* **RNF01 - Segurança (LGPD):** Dados sensíveis de partes processuais devem ser armazenados com criptografia e acesso restrito.
+* **RNF02 - Usabilidade:** A interface no Oracle APEX deve ser otimizada para visualização rápida em desktop, com foco em ações em massa.
+* **RNF03 - Desempenho:** O processamento de IA para extração de dados de cada PDF não deve exceder 15 segundos.
+* **RNF04 - Disponibilidade:** O motor de comunicação (n8n/Evolution API) deve operar 24/7 para processar respostas e logs.
+
+---
+
+## ⚖️ Regras de Negócio (RN)
+
+* **RN01:** O envio do mandado só deve ocorrer após a confirmação positiva de identidade pelo alvo.
+* **RN02:** Mandados marcados como "Urgentes" pela IA devem aparecer no topo da lista de prioridades no Dashboard.
+* **RN03:** Se um número for identificado como "Fixo" ou "Sem WhatsApp", o status deve ser alterado imediatamente para "Diligência Física Necessária".
