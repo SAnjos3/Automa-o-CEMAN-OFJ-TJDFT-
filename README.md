@@ -4,19 +4,19 @@
 
 ---
 
-## 📋 Descrição
+## Descrição
 
 Este projeto visa eliminar as tarefas manuais e repetitivas dos **Oficiais de Justiça do TJDFT**, automatizando desde a captura de mandados no portal **CEMAN** (Central de Mandados) até a comunicação via **WhatsApp** e a geração automática de certidões.
 
 O sistema realiza o seguinte fluxo de trabalho de ponta a ponta:
 
 ```
-Scraping (CEMAN) → IA Parsing (Gemini) → Gestão (Oracle APEX) → Automação WhatsApp (n8n + Evolution API)
+Scraping (CEMAN) → IA Parsing (Gemini) → Gestão (Oracle APEX) → Automação WhatsApp (n8n + Evolution API) → Produção das Certidões (Coleta Automática de Provas)
 ```
 
 ---
 
-## 🏗️ Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 ceman-automacao/
@@ -47,7 +47,7 @@ ceman-automacao/
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 | Tecnologia | Papel no sistema |
 |---|---|
@@ -62,31 +62,31 @@ ceman-automacao/
 
 ---
 
-## 🔄 Fluxo de Trabalho
+## Fluxo de Trabalho
 
 ```
-1. 🔍 SCRAPING
-   O script Python (Playwright) acessa o portal CEMAN,
-   autentica com as credenciais do Oficial e baixa os PDFs dos mandados pendentes.
+1. SCRAPING
+   O script Python (Playwright) acessa o portal CEMAN, autentica com as credenciais do Oficial,
+   baixa os PDFs dos mandados pendentes e extrai informações úteis da página.
 
-2. 🤖 IA PARSING
+2. IA PARSING
    Os PDFs são enviados para a API Gemini (Google AI), que extrai
    automaticamente os dados estruturados: processo, partes, endereço, vara, prazo.
 
-3. 📊 GESTÃO APEX
+3. GESTÃO APEX
    Os dados extraídos são persistidos no Oracle APEX via API REST.
-   O Oficial de Justiça acessa o portal APEX para visualizar, filtrar
-   e atualizar o status dos mandados.
+   O Oficial de Justiça acessa o portal APEX para visualizar gráficos de prograssão e
+   gerir os mandados atuais.
 
-4. 📱 AUTOMAÇÃO WHATSAPP VIA n8n
-   Ao inserir ou atualizar um mandado, o backend dispara um webhook no n8n.
-   O n8n processa o workflow e envia notificações via WhatsApp
-   usando a Evolution API. O Oficial pode confirmar cumprimentos pelo WhatsApp.
+4. AUTOMAÇÃO WHATSAPP VIA n8n
+   Ao selecionar um mandado (ou vários), o backend dispara um webhook no n8n.
+   O n8n processa o workflow e executa intimação via WhatsApp usando a Evolution API.
+   O Oficial pode confirmar cumprimentos pelo WhatsApp.
 ```
 
 ---
 
-## ⚙️ Configuração e Execução
+## Configuração e Execução
 
 ### Pré-requisitos
 
@@ -153,24 +153,10 @@ Execute o script DDL no seu ambiente Oracle APEX:
 
 ---
 
-## 📄 Documentação
+## Documentação
 
 - [Requisitos do Sistema](docs/requisitos.md)
 - [Arquitetura do Sistema](docs/arquitetura.md)
 - [Histórias de Usuário](docs/historias_usuario.md)
 - [Workflows n8n](src/n8n/README.md)
 
----
-
-## 🔒 Segurança
-
-- **Nunca versione** o arquivo `infra/.env` com dados reais.
-- Credenciais são lidas exclusivamente de variáveis de ambiente.
-- O sistema deve operar dentro da rede do TJDFT ou via VPN autorizada.
-- O uso da IA Gemini deve respeitar as políticas de sigilo processual do TJDFT.
-
----
-
-## 📜 Licença
-
-Uso interno restrito ao TJDFT. Todos os direitos reservados.
